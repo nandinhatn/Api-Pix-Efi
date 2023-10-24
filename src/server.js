@@ -10,7 +10,10 @@ const GNRequest = require('./apis/efi')
 app.set('view engine', 'ejs');
 app.set('views', 'src/views')
 
-const reqGNAlready = GNRequest();
+const reqGNAlready = GNRequest({
+    clientID : process.env.GN_CLIENT_ID,
+    clientSecret : process.env.GN_CLIENT_SECRET
+});
 app.get('/', async (req, res)=>{
 
     const reqGN = await reqGNAlready
