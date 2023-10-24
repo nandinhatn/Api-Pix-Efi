@@ -4,8 +4,9 @@ if(process.env.NODE_ENV !== 'production'){
 
 const express = require('express')
 
-
+const bodyParser= require('body-parser')
 const app = express();
+app.use(bodyParser.json())
 const GNRequest = require('./apis/efi')
 app.set('view engine', 'ejs');
 app.set('views', 'src/views')
@@ -47,6 +48,11 @@ app.get('/', async (req, res)=>{
         const reqGN = await reqGNAlready
         const cobResponse = await reqGN.get('/v2/cob?inicio=2023-10-22T16:01:35Z&fim=2023-10-24T20:10:00Z')
         res.send(cobResponse.data)
+     })
+
+     app.post('/webhook(/pix)?', (req,res)=>{
+        console.log(req.body);
+        res.send('200')
      })
 
 app.listen(8000, ()=>{
