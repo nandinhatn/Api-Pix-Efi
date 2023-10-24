@@ -39,6 +39,12 @@ app.get('/', async (req, res)=>{
        res.render('qrcode',{qrcodeImage: qrcodeResponse.data.imagemQrcode}) 
     })
 
+   
+     app.get('/cobrancas', async (req,res)=>{
+        const reqGN = await reqGNAlready
+        const cobResponse = await reqGN.get('/v2/cob?inicio=2023-10-22T16:01:35Z&fim=2023-10-24T20:10:00Z')
+        res.send(cobResponse.data)
+     })
 
 app.listen(8000, ()=>{
     console.log('running')
