@@ -3,9 +3,13 @@ if(process.env.NODE_ENV !== 'production'){
 }
 
 const express = require('express')
+const https = require('https');
+const fs = require('fs')
+const cors = require('cors')
 
 const bodyParser= require('body-parser')
 const app = express();
+app.use(cors({origin: '*'}));
 app.use(bodyParser.json())
 const GNRequest = require('./apis/efi')
 app.set('view engine', 'ejs');
@@ -15,6 +19,17 @@ const reqGNAlready = GNRequest({
     clientID : process.env.GN_CLIENT_ID,
     clientSecret : process.env.GN_CLIENT_SECRET
 });
+
+
+
+const credentials = require('./credentials/cred');
+const httpsServer = https.createServer(credentials, app);
+const corsOptions = {
+
+  origin: '*', // client (todo mundo pode acessar)
+  
+  optionsSuccessStatus: 200
+}
 app.get('/', async (req, res)=>{
 
     const reqGN = await reqGNAlready
@@ -55,9 +70,16 @@ app.get('/', async (req, res)=>{
         res.send('200')
      })
 
-app.listen(8000, ()=>{
+/* app.listen(21226, ()=>{
     console.log('running')
-})
+}) */
+
+httpsServer.listen(21226, () => {
+	console.log('HTTPS Server running on port 443');
+});
+
+
+
 
 
 
