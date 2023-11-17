@@ -9,6 +9,11 @@ const agent = new https.Agent({
     pfx: cert,
     passphrase:''
 })
+const agent1 = new https.Agent({
+    pfx: cert,
+    passphrase:'',
+    rejectUnauthorized: false
+})
 
 
 
@@ -38,7 +43,7 @@ const authenticate = ({ clientID, clientSecret})=>{
     const accessToken = authResponse.data?.access_token;
     
     console.log('+++++++++++++++++++++++++++++++',accessToken)
-    const endpoint =`https://pix-h.api.efipay.com.br`
+    const endpoint =`${process.env.GN_ENDPOINT}`
     return axios.create({
         baseURL : endpoint,
        

@@ -1,0 +1,2 @@
+RewriteEngine on
+RedirectMatch "^/webhook/?$" "https://poppytecnologias.com.br:21226/webhook"

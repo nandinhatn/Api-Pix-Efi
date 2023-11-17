@@ -3,9 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="10">
     <title>API PIX</title>
 </head>
 <body>
-    <img src="<%= qrcodeImage %>">
+
+    <% if (!success) { %>
+        <img src="<%= qrcodeImage %>">
+        
+    <% } %>
+   
+    <p><%= resposta  %></p>
+    <% if (success) { %>
+        <div class="alert alert-success"  id="success_message"> Success 
+          Thanks for contacting us, we will get back to you shortly. 
+        </div>
+    <% } %>
+    
 </body>
 </html>
