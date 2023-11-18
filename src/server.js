@@ -7,7 +7,7 @@ const https = require('https');
 const fs = require('fs')
 const cors = require('cors')
 const mysql = require('mysql')
-const socketIO = require('socket.io');
+/* const socketIO = require('socket.io'); */
 const bodyParser= require('body-parser')
 const app = express();
 app.use(cors({origin: '*'}));
@@ -32,19 +32,32 @@ conn.connect((err)=>{
   console.log('conectado ao banco')
 })
 
-
-
-const credentials = require('./credentials/cred');
-const httpsServer = https.createServer(credentials, app);
-const io = socketIO(httpsServer)
 const corsOptions = {
 
-  origin: '*', // client (todo mundo pode acessar)
+  origin: 'https://www.pix.poppytecnologias.com.br', // client (todo mundo pode acessar),
+  methods:["GET", "POST"],
   
   optionsSuccessStatus: 200
 }
+
+const credentials = require('./credentials/cred');
+const httpsServer = https.createServer(credentials, app);
+/* var io = require('socket.io')(httpsServer); */
+
 let statusMsg =0
 
+/* io.on('connection', function(socket) {
+  console.log('connected socket!');
+  socket.emit('qr', qrcodeResponse.data.imagemQrcode);
+  socket.emit('message', 'QR Code received, scan please!');
+  socket.on('greet', function(data) {
+    console.log(data);
+    socket.emit('respond', { hello: 'Hey, Mr.Client!' });
+  });
+  socket.on('disconnect', function() {
+    console.log('Socket disconnected');
+  });
+});  */
 
 app.get('/', async (req, res)=>{
 
@@ -74,18 +87,22 @@ app.get('/', async (req, res)=>{
        const cobResponse=  await reqGN.post('/v2/cob', dataCob)
 
        const txdId = cobResponse.data.txid
-       console.log(cobResponse)
-      console.log('txId',txdId)
-        const qrcodeResponse = await reqGN.get(`v2/loc/${cobResponse.data.loc.id}/qrcode`)
-       /* res.send(qrcodeResponse.data)  */
-       if(statusMsg===0){
-
-         res.render('qrcode',{qrcodeImage: qrcodeResponse.data.imagemQrcode, resposta: 'Aguardando Pagamento', success:false}) 
-       }
-       else{
-        res.render('qrcode',{qrcodeImage: qrcodeResponse.data.imagemQrcode, resposta: `Pagamento no valor : ${dataCob.valor.original} realizado com sucesso! Obrigado! Em breve receberá sua encomenda`, success:false}) 
-       }
       
+    
+      
+     const qrcodeResponse = await reqGN.get(`v2/loc/${cobResponse.data.loc.id}/qrcode`) 
+     const copy = qrcodeResponse.data.qrcode
+        /* const teste =await reqGN.get(`v2/loc/${cobResponse.data.loc.id}`) */
+        console.log("***************************************")
+        console.log(copy)
+        console.log("***************************************")
+        
+         res.render('qrcode',{qrcodeImage: qrcodeResponse.data.imagemQrcode, copy: copy, resposta: 'Aguardando Pagamento', success:false, texto:txdId, cpf : dataCob.devedor.cpf, nome : dataCob.devedor.nome, valor: dataCob.valor.original,  }) 
+      
+   /*     res.sendFile('index.html', { root: __dirname }); */
+    
+      
+        
        let data ={ txId : txdId, cpf : dataCob.devedor.cpf, nome : dataCob.devedor.nome, valor: dataCob.valor.original, status: cobResponse.data.status}
        let sqlQuery = "INSERT INTO pagamentos SET ?";
        let query = conn.query(sqlQuery, data,(err,results)=>{
@@ -110,24 +127,40 @@ app.get('/', async (req, res)=>{
       res.status(200).end();
      })
   
+      app.get('/checkPag/:id', async (req,res)=>{
+
+        let txid = req.params.id
+        const reqGN = await reqGNAlready
+        const cobResponse = await reqGN.get(`/v2/cob/${txid}`)
+         res.send(cobResponse.data)
+       /*  let sqlQuery = "SELECT * FROM pagamentos WHERE txId='"+req.params.id+"'" ;
+
+        let query = conn.query(sqlQuery, (err, results)=>{
+          if(err) throw err;
+          res.send(results)
+        }) */
+        
+      })
      
      app.post('/webhook/pix/', (req,res)=>{
     
-      const status = "pago"
+      const status = "PAGO"
       statusMsg=1;
-     const txId= req.body.pix[0].txid
+     const txIdResponse= req.body.pix[0].txid
       console.log(req.body.pix[0].txid)
       
+      
    /*    let sqlQuery = "UPDATE pagamentos SET status='"+status+"' WHERE txId="+req.body.pix[0].txid; */
-      let sqlQuery = "UPDATE pagamentos SET status='"+status+"' WHERE txId='"+txId+"'";
+      let sqlQuery = "UPDATE pagamentos SET status='"+status+"' WHERE txId='"+txIdResponse+"'";
       // gravar no banco de dados essa informação"
       let query = conn.query(sqlQuery, (err, results)=>{
         if(err) throw err;
        /*  res.render('qrcode',{qrcodeImage: "", resposta: 'foi', success: true})  */
       
         /* res.render('sucesso',{sucess:true, resposta:'foi'}) */
-        res.render('qrcode',{qrcodeImage: "", resposta: 'foi', success: true})
+        /* res.render('qrcode',{qrcodeImage: "", resposta: 'foi',  texto:'teste',success: true}) */
         console.log('foi2')
+        res.send(200)
     
       
         

@@ -24,9 +24,18 @@
       crossorigin="anonymous"
     ></script>
     <script>
-        var socket = io.connect('http://www.pix.poppytecnologias.com.br');
-        socket.on('connect', function(data) {
-            socket.emit('join', 'Hello World from client');
+      var socket = io.connect('https://www.pix.poppytecnologias.com.br', {secure: true});
+socket.on('connect', function () {
+  console.log('connected!');
+  socket.emit('greet', { message: 'Hello Mr.Server!' });
+});
+
+socket.on('respond', function (data) {
+  console.log(data);
+});
+
+socket.on('qr', function (src) {
+          $('#qrcode').attr('src', src);
         });
       </script>
   </body>

@@ -3,22 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="10">
+  
     <title>API PIX</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,500&display=swap" rel="stylesheet">
 </head>
+<style>
+    bodY{
+        font-family: 'Roboto', sans-serif;
+    }
+    #container{
+        padding-left: 20px;
+       
+        
+    }
+    textarea{
+        width: 200px;
+    }
+</style>
 <body>
 
-    <% if (!success) { %>
+    <% if (success==false) { %>
         <img src="<%= qrcodeImage %>">
         
     <% } %>
-   
-    <p><%= resposta  %></p>
+    <div id="container">
+
+    
+    <p id="respostaTxt"><b>Status Transação:</b> <%= resposta  %></p>
+    <p id="nome"><b>Nome:</b> <%= nome %></p>
+    <p id="cpf"><b>CPF:</b> <%= cpf %></p>
+    <p id="valor"><b>Valor:</b> R$ <%= valor %></p>
+    <p id="txtId" style="display: none;"><%= texto  %></p>
+    <textarea rows="2" cols="10" id="copytext" readonly><%= copy %></textarea>
     <% if (success) { %>
         <div class="alert alert-success"  id="success_message"> Success 
           Thanks for contacting us, we will get back to you shortly. 
         </div>
     <% } %>
-    
+    <button id="btn">Copia e Cola</button>
+</div>  
+
 </body>
+<script>
+
+    document.getElementById('btn').addEventListener('click', execCopy);
+
+    function execCopy(){
+        document.querySelector('#copytext').select();
+        document.execCommand("copy")
+    }
+
+    let resposta = document.getElementById("respostaTxt")
+        let txtid = document.getElementById("txtId").innerHTML
+      
+    
+            const interval = setInterval(getPagamento,5000)
+    
+           function getPagamento(){
+            axios.get (`https://www.pix.poppytecnologias.com.br/checkPag/${txtid}`)
+      .then(response => {
+        
+        if(response.data.status=='CONCLUIDA'){
+            resposta.innerHTML = "Pagamento recebido"
+            clearInterval(interval)
+
+        }
+        
+      })
+      .catch(error => {
+        console.log(error);
+      })
+           }
+
+
+           
+        </script>
 </html>
